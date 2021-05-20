@@ -1,0 +1,24 @@
+{
+  "name": "press-img",
+  "version": "1.0.0",
+  "description": "frontend  press image",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merrylmr/press-img.git"
+  },
+  "keywords": [
+    "js",
+    "press",
+    "img"
+  ],
+  "author": "merrylmr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/merrylmr/press-img/issues"
+  },
+  "homepage": "https://github.com/merrylmr/press-img#readme"
+}
