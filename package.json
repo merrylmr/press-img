@@ -1,5 +1,5 @@
 {
-  "name": "press-img",
+  "name": "@merrylmr/press-img",
   "version": "1.0.0",
   "description": "frontend  press image",
   "main": "index.js",
