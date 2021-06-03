@@ -11,7 +11,7 @@
             placeholder="请上传图片"
             id="file">
 </div>
-<script src="../index.js"></script>
+<script src="../dist/main.js"></script>
 <script>
     window.addEventListener('load', function () {
         const fileDom = document.getElementById('file');
@@ -21,8 +21,9 @@
 
             const options = {
                 file: file,
-                quality: 0.6,
+                quality: 0.5,
                 mimeType: 'image/jpeg',
+                width: 1000,
 
                 beforeCompress: function (result, op) {
                     console.log('压缩之前的大小：', result.size);
@@ -38,7 +39,7 @@
                     console.log('压缩之后的大小', result.size);
                     console.log('压缩率', (100 - result.size / file.size * 100).toFixed(2) + '%');
                     // 压缩成功之后，可以上传到服务器上
-                    SimpleImageCompressor.blob2DataUrl(result, (res) => {
+                    SimpleImageCompressor.blob2DataUrl(result, function (res) {
                         console.log('blob2DataUrl res', res);
                     });
 

@@ -1,3 +1,10 @@
+// 图片尺寸限制
+// 图片size限制：如果压缩之后，大小在限制范围内，则直接上传
+// 压缩之后，图片超出限制的大小，进行尺寸限制？
+
+// 兼容性问题
+// 图片压缩反而增大了
+
 // 上传之前，压缩图片
 const util = {
     pressImg: pressImg,
@@ -59,12 +66,37 @@ function file2Image(file, callback) {
     }
 }
 
+function imgAspectRadio(naturalW, naturalH, w, h) {
+    const rate = naturalW / naturalH;
+    let width = Math.max(w || 0) || naturalW;
+    let height = Math.max(h || 0) || naturalH;
+
+    if (height * rate > width) {
+        height = width / rate;
+    } else {
+        width = height * rate;
+    }
+    return {width, height}
+}
 // 图片转canvas
-function image2Canvas(image) {
+function image2Canvas(image, width, height) {
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
+    let rect = {
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+    }
+    if (width || height) {
+        rect = imgAspectRadio(
+            image.naturalWidth,
+            image.naturalHeight,
+            width,
+            height
+        )
+    }
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
     return canvas;
 }
@@ -101,7 +133,7 @@ function dataUrl2Blob(dataUrl, type) {
 function canvas2Blob(canvas, callback, quality, type) {
     canvas.toBlob(function (blob) {
         callback(blob)
-    }, type || 'image/jpeg', quality || 0.8)
+    }, 'image/jpeg', quality || 0.8)
 }
 
 if (!HTMLCanvasElement.prototype.toBlob) {
@@ -123,79 +155,78 @@ function blob2Image(blob, callback) {
 }
 
 
-(function (win) {
-    const REGEXP_IMAGE_TYPE = /^image\//;
-    const utils = {};
-    const defaultOptions = {
-        file: null,
-        quality: 0.8
+const REGEXP_IMAGE_TYPE = /^image\//;
+const utils = {};
+const defaultOptions = {
+    file: null,
+    quality: 0.8
+}
+
+const isFunc = function (fn) {
+    return typeof fn === 'function'
+}
+
+const isImageType = function (value) {
+    return REGEXP_IMAGE_TYPE.test(value)
+}
+
+function SimpleImageCompressor(options) {
+    console.log('SimpleImageCompressor instance', this.init);
+    options = Object.assign({}, defaultOptions, options);
+    this.options = options;
+    this.file = options.file;
+    this.init();
+}
+
+const _proto = SimpleImageCompressor.prototype;
+window.SimpleImageCompressor = SimpleImageCompressor;
+
+
+_proto.init = function init() {
+    const _this = this;
+    const file = this.file;
+
+    const options = this.options;
+
+    if (!file || !isImageType(file.type)) {
+        console.error('请上传图片文件！')
+        return
     }
-
-    const isFunc = function (fn) {
-        return typeof fn === 'function'
+    if (!isImageType(options.mimeType)) {
+        options.mimeType = file.type
     }
+    util.file2Image(file, (image) => {
+        const canvas = util.image2Canvas(image, options.width, options.height);
+        file.width = image.naturalWidth;
+        file.height = image.naturalHeight;
 
-    const isImageType = function (value) {
-        return REGEXP_IMAGE_TYPE.test(value)
+        // todo:调用压缩之前的回调
+        _this.beforeCompress(file, canvas);
+
+
+        util.canvas2Blob(canvas, (blob) => {
+            blob.width = canvas.width;
+            blob.height = canvas.height;
+            // todo：成功之后的回调
+            options.success && options.success(blob);
+            console.log('success', options.mimeType)
+        }, options.quality, options.mimeType)
+    })
+}
+
+_proto.beforeCompress = function () {
+    if (isFunc(this.options.beforeCompress)) {
+        this.options.beforeCompress(this.file, this.options);
     }
-
-    function SimpleImageCompressor(options) {
-        options = Object.assign({}, defaultOptions, options);
-        this.options = options;
-        this.file = options.file;
-        this.init();
+}
+// 添加静态方法
+for (let key in util) {
+    if (util.hasOwnProperty(key)) {
+        SimpleImageCompressor[key] = util[key]
     }
-
-    const _proto = SimpleImageCompressor.prototype;
-    window.SimpleImageCompressor = SimpleImageCompressor;
+}
 
 
-    _proto.init = function init() {
-        const _this = this;
-        const file = this.file;
-
-        const options = this.options;
-
-        if (!file || !isImageType(file.type)) {
-            console.error('请上传图片文件！')
-            return
-        }
-        if (!isImageType(options.mimeType)) {
-            options.mimeType = file.type
-        }
-        util.file2Image(file, (image) => {
-            const canvas = util.image2Canvas(image);
-            file.width = image.naturalWidth;
-            file.height = image.naturalHeight;
-
-            // todo:调用压缩之前的回调
-            _this.beforeCompress(file, canvas);
-
-
-            util.canvas2Blob(canvas, (blob) => {
-                blob.width = canvas.width;
-                blob.height = canvas.height;
-
-                // todo：成功之后的回调
-                options.success && options.success(blob);
-                console.log('success', options.mimeType)
-            }, options.quality, options.mimeType)
-        })
-    }
-
-    _proto.beforeCompress = function () {
-        if (isFunc(this.options.beforeCompress)) {
-            this.options.beforeCompress(this.file, this.options);
-        }
-    }
-
-    for (let key in util) {
-        if (util.hasOwnProperty(key)) {
-            SimpleImageCompressor[key] = util[key]
-        }
-    }
-
-
-})(window)
+export default SimpleImageCompressor
 
 
