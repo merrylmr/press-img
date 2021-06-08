@@ -22,30 +22,12 @@
             const options = {
                 file: file,
                 quality: 0.5,
-                mimeType: 'image/jpeg',
-                width: 1000,
-
-                beforeCompress: function (result, op) {
-                    console.log('压缩之前的大小：', result.size);
-                    console.log('mime 类型：', result.type, file.type, op);
-                    // 修改压缩之后的类型
-                    op.mimeType = file.type
-                    // SimpleImageCompressor.file2DataUrl(result, function (url) {
-                    //     console.log('url', url)
-                    // })
-                },
-                success: function (result) {
-                    console.log('success', result)
-                    console.log('压缩之后的大小', result.size);
-                    console.log('压缩率', (100 - result.size / file.size * 100).toFixed(2) + '%');
-                    // 压缩成功之后，可以上传到服务器上
-                    SimpleImageCompressor.blob2DataUrl(result, function (res) {
-                        console.log('blob2DataUrl res', res);
-                    });
-
-                },
+                type: 'image/jpeg',
+                width: 1000
             }
-            new SimpleImageCompressor(options)
+            compressImage(file, options).then((blob) => {
+                console.log('compressImage-blob', blob)
+            });
         }, false)
     })
 </script>
