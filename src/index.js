@@ -71,6 +71,7 @@ class Compress {
         })
     }
 
+
     image2Canvas(image) {
         return new Promise((resolve, reject) => {
             let canvas = document.createElement('canvas');
@@ -116,6 +117,8 @@ class Compress {
 
 const compressImage = (file, options) => new Compress(file, options).process()
 window.compressImage = compressImage;
+
+window.a = 1;
 export default compressImage
 
 
