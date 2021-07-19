@@ -29,6 +29,7 @@
                 // height: 1000,
                 // maxFileSize: 4 * 1024 * 1024
             }
+            console.log('compressImage', compressImage);
             const instance = compressImage(file, options)
             instance.process().then(async (blob) => {
                 console.log('compressImage-blob', blob)
