@@ -10,6 +10,9 @@
             type="file"
             placeholder="请上传图片"
             id="file">
+    <div id="destination">
+        <img src="" alt="">
+    </div>
 </div>
 <script src="../dist/main.js"></script>
 <script>
@@ -21,12 +24,18 @@
 
             const options = {
                 file: file,
-                quality: 0.5,
+                quality: 0.8,
                 type: 'image/jpeg',
-                width: 1000
+                // height: 1000,
+                // maxFileSize: 4 * 1024 * 1024
             }
-            compressImage(file, options).then((blob) => {
+            const instance = compressImage(file, options)
+            instance.process().then(async (blob) => {
                 console.log('compressImage-blob', blob)
+                console.log('compressImage instance', instance)
+                const src = await instance.file2DataUrl(blob)
+                document.querySelector('#destination img').src = src;
+                //  需要显示其他的信息
             });
         }, false)
     })
