@@ -3,7 +3,7 @@
   "author": "merrylmr",
   "version": "1.0.0",
   "description": "frontend  press image",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
     "dev": "webpack  --mode=development --config=webpack.config.js -w"
   },
