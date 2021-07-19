@@ -1,7 +1,7 @@
 {
   "name": "press-img",
   "author": "merrylmr",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "frontend  press image",
   "main": "./dist/main.js",
   "scripts": {
